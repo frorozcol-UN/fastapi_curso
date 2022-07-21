@@ -23,49 +23,74 @@ class Person(BaseModel):
         ..., 
         min_length=1,
         max_length=50,
+        example="Alberto"
 
         )
     last_name : str = Field(
         ..., 
         min_length=1,
         max_length=50,
+        example="ORozco"
         
         )
     age: int = Field(
         ...,
         gt=0,
-        le=115
+        le=115,
+        example=23
         )
     email : EmailStr = Field(
         ...,
         title='Email',
-        description='The email of the person that will receive the package.'
+        description='The email of the person that will receive the package.',
+        example="freorozcoloa@gmail.com"
          )
     url : HttpUrl = Field(
         ...,
         title="Website",
-        description="This is a url from website"
+        description="This is a url from website",
+        example="fredy.com"
     )
-    hair_color:Optional[HairColor] = Field(default=None)
-    is_married: Optional[bool] = Field(default=None)
+    hair_color:Optional[HairColor] = Field(default=None,example=HairColor.black)
+    is_married: Optional[bool] = Field(default=None, example=False)
+
+    """
+    class Config:
+        schema_extra = {
+            "example":{
+
+                "first_name": "Fredy",
+                "last_name": "Orozco Loaiza",
+                "age": 21,
+                "email": "fredy@example.com",
+                "url": "www.fredy.com",
+                "hair_color": HairColor.blonde,
+                "is_married":False
+            }
+        }
+        """
 
 class Location(BaseModel):
     city: str = Field(
         ..., 
         min_length=5,
         max_length=20,
+        example="MEdellin"
 
         )
     state:str = Field(
         ...,
         min_length=5,
         max_length=20,
+        example="Antioquia"
     )
     country: str = Field(
         ...,
         min_length=5,
         max_length=20,
+        example="Colombia"
     )
+
 
 @app.get("/")
 def home():
@@ -118,9 +143,10 @@ def update_person(
         gt=0
     ),
     person: Person = Body(...),
-    location: Location = Body(...)
+    #location: Location = Body(...)
     ):
-    results = person.dict()
-    results.update(location.dict())
-    return results
+    #results = person.dict()
+    #results.update(location.dict())
+    #return results
+    return person
 
