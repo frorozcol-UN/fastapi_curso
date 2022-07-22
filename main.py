@@ -69,6 +69,11 @@ class Person(BaseModel):
             }
         }
         """
+    password: str = Field(
+        ..., 
+        min_length=8
+        )
+
 
 class Location(BaseModel):
     city: str = Field(
@@ -98,7 +103,7 @@ def home():
 
 # request and response body
 
-@app.post("/person/new")
+@app.post("/person/new", response_model=Person, response_model_exclude={"password"})
 def create_user(person:Person = Body(...)):
     return person
 
