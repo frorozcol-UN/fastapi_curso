@@ -5,7 +5,7 @@ from enum import Enum
 from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
 #FastAPI
-from fastapi import FastAPI, Body, Path, Query
+from fastapi import FastAPI, Body, Path, Query, status
 
 app = FastAPI()
 
@@ -49,7 +49,7 @@ class PersonBase(BaseModel):
         ...,
         title="Website",
         description="This is a url from website",
-        example="fredy.com"
+        example="https://platzi.com/clases/2514-fastapi-modularizacion-datos/41981-status-code-personalizados/"
     )
     hair_color:Optional[HairColor] = Field(default=None,example=HairColor.black)
     is_married: Optional[bool] = Field(default=None, example=False)
@@ -105,18 +105,29 @@ class Location(BaseModel):
     )
 
 
-@app.get("/")
+@app.get(
+    "/", 
+    status_code=status.HTTP_200_OK
+    )
 def home():
     return {"Hello": "World"}
 
 # request and response body
 
-@app.post("/person/new", response_model=Person, response_model_exclude={"password"})
+@app.post(
+    "/person/new", 
+    response_model=Person, 
+    response_model_exclude={"password"},
+    status_code=status.HTTP_201_CREATED
+    )
 def create_user(person:Person = Body(...)):
     return person
 
 # Validaciones: Query Parametros
-@app.get("/person/detail")
+@app.get(
+    "/person/detail",
+    status_code=status.HTTP_200_OK
+    )
 def show_person(
     name : Optional[str]= Query(
         None, 
@@ -137,7 +148,9 @@ def show_person(
 
 
 # Validation Path parameters
-@app.get("/person/detail/{person_id}")
+@app.get(
+    "/person/detail/{person_id}",
+    status_code=status.HTTP_200_OK)
 def show_person(
     person_id:int = Path(
         ..., 
@@ -151,7 +164,10 @@ def show_person(
 
 
 # Validaciones. Request Body
-@app.put("/person/{person_id}")
+@app.put(
+    "/person/{person_id}",
+    status_code=status.HTTP_202_ACCEPTED
+    )
 def update_person(
     person_id: int = Path(
         ...,
