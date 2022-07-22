@@ -18,7 +18,7 @@ class HairColor(Enum):
     blonde = "blonde"
     red = "red"
 
-class Person(BaseModel):
+class PersonBase(BaseModel):
     first_name : str = Field(
         ..., 
         min_length=1,
@@ -74,6 +74,14 @@ class Person(BaseModel):
         min_length=8
         )
 
+class Person(PersonBase):
+     password: str = Field(
+        ..., 
+        min_length=8
+        )
+
+class PersonOut(PersonBase):
+    pass
 
 class Location(BaseModel):
     city: str = Field(
