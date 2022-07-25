@@ -1,11 +1,12 @@
 #Python
+from doctest import Example
 from typing import Optional
 from enum import Enum
 
 from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
 #FastAPI
-from fastapi import FastAPI, Body, Path, Query, status
+from fastapi import FastAPI, Body, Path, Query, status, Form
 
 app = FastAPI()
 
@@ -104,7 +105,15 @@ class Location(BaseModel):
         example="Colombia"
     )
 
+class Login(BaseModel):
+    username:str = Field(
+        ...,
+        max_length=20,
+        example="Freorozcoloa"
+    )
+    message: str = Field(default="Login Succesfully!")
 
+    
 @app.get(
     "/", 
     status_code=status.HTTP_200_OK
@@ -184,3 +193,11 @@ def update_person(
     #return results
     return person
 
+@app.post(
+    path="/login",
+    response_model=Login,
+    status_code=status.HTTP_200_OK,
+
+)
+def loggin(username:str = Form(...), password:str = Form(...) ):
+    return Login(username=username)
