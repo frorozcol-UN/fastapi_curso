@@ -6,7 +6,7 @@ from enum import Enum
 from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
 #FastAPI
-from fastapi import FastAPI, Body, Path, Query, status, Form
+from fastapi import Cookie, FastAPI, Body, Header, Path, Query, status, Form
 
 app = FastAPI()
 
@@ -201,3 +201,37 @@ def update_person(
 )
 def loggin(username:str = Form(...), password:str = Form(...) ):
     return Login(username=username)
+
+# Cookies and Headers Parameters.
+
+@app.post(
+    path="/contact",
+    status_code=status.HTTP_200_OK
+)
+def contact(
+    first_name: str = Form(
+        ...,
+        max_length=20,
+        min_length=1,
+        example="Fredy"
+        ),
+    last_name: str = Form(
+        ...,
+        max_length=20,
+        min_length=1,
+        example="Orozco"
+        ),
+    email: EmailStr = Form(
+        ...,
+        example="freorozcoloa@example.com"
+        ),
+    message: str = Form(
+        ...,
+        min_length=20,
+        example="Querido fredy espero que este bien, todo bien todo bonito"
+    ),
+    user_agent: Optional[str] = Header(default=None),
+    ads: Optional[str] = Cookie(default=None)
+
+):
+    return user_agent
