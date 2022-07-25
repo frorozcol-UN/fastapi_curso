@@ -1,12 +1,11 @@
 #Python
-from doctest import Example
 from typing import Optional
 from enum import Enum
 
 from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
 #FastAPI
-from fastapi import Cookie, FastAPI, Body, Header, Path, Query, status, Form
+from fastapi import Cookie, FastAPI, Body, File, Header, Path, Query, UploadFile, status, Form
 
 app = FastAPI()
 
@@ -235,3 +234,18 @@ def contact(
 
 ):
     return user_agent
+
+
+#Files
+
+@app.post(
+    path="/post-img"
+)
+def post_image(
+    image: UploadFile = File(...)
+):
+    return {
+        "Filename": image.filename,
+        "Format": image.content_type,
+        "Size(Kb)":round(len(image.file.read())/1024 ,2),
+    }
