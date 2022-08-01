@@ -5,7 +5,7 @@ from enum import Enum
 from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
 #FastAPI
-from fastapi import FastAPI, Body, Path, Query
+from fastapi import Cookie, FastAPI, Body, File, Header, Path, Query, UploadFile, status, Form
 
 app = FastAPI()
 
@@ -18,7 +18,7 @@ class HairColor(Enum):
     blonde = "blonde"
     red = "red"
 
-class Person(BaseModel):
+class PersonBase(BaseModel):
     first_name : str = Field(
         ..., 
         min_length=1,
@@ -49,7 +49,7 @@ class Person(BaseModel):
         ...,
         title="Website",
         description="This is a url from website",
-        example="fredy.com"
+        example="https://platzi.com/clases/2514-fastapi-modularizacion-datos/41981-status-code-personalizados/"
     )
     hair_color:Optional[HairColor] = Field(default=None,example=HairColor.black)
     is_married: Optional[bool] = Field(default=None, example=False)
@@ -74,6 +74,14 @@ class Person(BaseModel):
         min_length=8
         )
 
+class Person(PersonBase):
+     password: str = Field(
+        ..., 
+        min_length=8
+        )
+
+class PersonOut(PersonBase):
+    pass
 
 class Location(BaseModel):
     city: str = Field(
@@ -96,19 +104,38 @@ class Location(BaseModel):
         example="Colombia"
     )
 
+class Login(BaseModel):
+    username:str = Field(
+        ...,
+        max_length=20,
+        example="Freorozcoloa"
+    )
+    message: str = Field(default="Login Succesfully!")
 
-@app.get("/")
+    
+@app.get(
+    "/", 
+    status_code=status.HTTP_200_OK
+    )
 def home():
     return {"Hello": "World"}
 
 # request and response body
 
-@app.post("/person/new", response_model=Person, response_model_exclude={"password"})
+@app.post(
+    "/person/new", 
+    response_model=Person, 
+    response_model_exclude={"password"},
+    status_code=status.HTTP_201_CREATED
+    )
 def create_user(person:Person = Body(...)):
     return person
 
 # Validaciones: Query Parametros
-@app.get("/person/detail")
+@app.get(
+    "/person/detail",
+    status_code=status.HTTP_200_OK
+    )
 def show_person(
     name : Optional[str]= Query(
         None, 
@@ -129,7 +156,9 @@ def show_person(
 
 
 # Validation Path parameters
-@app.get("/person/detail/{person_id}")
+@app.get(
+    "/person/detail/{person_id}",
+    status_code=status.HTTP_200_OK)
 def show_person(
     person_id:int = Path(
         ..., 
@@ -143,7 +172,10 @@ def show_person(
 
 
 # Validaciones. Request Body
-@app.put("/person/{person_id}")
+@app.put(
+    "/person/{person_id}",
+    status_code=status.HTTP_202_ACCEPTED
+    )
 def update_person(
     person_id: int = Path(
         ...,
@@ -160,3 +192,60 @@ def update_person(
     #return results
     return person
 
+@app.post(
+    path="/login",
+    response_model=Login,
+    status_code=status.HTTP_200_OK,
+
+)
+def loggin(username:str = Form(...), password:str = Form(...) ):
+    return Login(username=username)
+
+# Cookies and Headers Parameters.
+
+@app.post(
+    path="/contact",
+    status_code=status.HTTP_200_OK
+)
+def contact(
+    first_name: str = Form(
+        ...,
+        max_length=20,
+        min_length=1,
+        example="Fredy"
+        ),
+    last_name: str = Form(
+        ...,
+        max_length=20,
+        min_length=1,
+        example="Orozco"
+        ),
+    email: EmailStr = Form(
+        ...,
+        example="freorozcoloa@example.com"
+        ),
+    message: str = Form(
+        ...,
+        min_length=20,
+        example="Querido fredy espero que este bien, todo bien todo bonito"
+    ),
+    user_agent: Optional[str] = Header(default=None),
+    ads: Optional[str] = Cookie(default=None)
+
+):
+    return user_agent
+
+
+#Files
+
+@app.post(
+    path="/post-img"
+)
+def post_image(
+    image: UploadFile = File(...)
+):
+    return {
+        "Filename": image.filename,
+        "Format": image.content_type,
+        "Size(Kb)":round(len(image.file.read())/1024 ,2),
+    }
