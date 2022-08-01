@@ -137,7 +137,8 @@ def home():
     "/person/new", 
     response_model=Person, 
     response_model_exclude={"password"},
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    tags=["Persons"]
     )
 def create_user(person:Person = Body(...)):
     return person
@@ -161,7 +162,8 @@ def show_person(
         title="Age",
         description="This is the person age, It's required",
         example=23
-        )
+        ),
+    tags=["Persons"]
     ):
     return {name:age}
 
@@ -169,7 +171,8 @@ persons = {1, 2, 3, 4, 5}
 # Validation Path parameters
 @app.get(
     "/person/detail/{person_id}",
-    status_code=status.HTTP_200_OK)
+    status_code=status.HTTP_200_OK,
+    tags=["Persons"])
 def show_person(
     person_id:int = Path(
         ..., 
@@ -190,7 +193,8 @@ def show_person(
 # Validaciones. Request Body
 @app.put(
     "/person/{person_id}",
-    status_code=status.HTTP_202_ACCEPTED
+    status_code=status.HTTP_202_ACCEPTED,
+    tags=["Persons"]
     )
 def update_person(
     person_id: int = Path(
@@ -212,7 +216,7 @@ def update_person(
     path="/login",
     response_model=Login,
     status_code=status.HTTP_200_OK,
-
+    tags=["Persons"]
 )
 def loggin(username:str = Form(...), password:str = Form(...) ):
     return Login(username=username)
