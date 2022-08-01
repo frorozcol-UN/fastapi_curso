@@ -5,8 +5,19 @@ from enum import Enum
 from pydantic import BaseModel, Field, EmailStr, HttpUrl
 
 #FastAPI
-from fastapi import Cookie, FastAPI, Body, File, Header, Path, Query, UploadFile, status, Form
-
+from fastapi import (
+    Cookie, 
+    FastAPI, 
+    Body, 
+    File, 
+    Header, 
+    Path, 
+    Query, 
+    UploadFile, 
+    status, 
+    Form,
+    HTTPException
+)
 app = FastAPI()
 
 # Models
@@ -126,15 +137,29 @@ def home():
     "/person/new", 
     response_model=Person, 
     response_model_exclude={"password"},
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    tags=["Persons"],
+    summary="Creates Person in the app."
     )
 def create_user(person:Person = Body(...)):
+    """Create Person
+
+    This path operation, create a person in the app and save information in the database
+
+    Args:
+        -Request body parameter:
+        -**person: Person** -> A Person model with first name, last name, age and is_married
+
+    Returns:
+        -Person model with first name, last name, age, hair color and marital staus.
+    """    
     return person
 
 # Validaciones: Query Parametros
 @app.get(
     "/person/detail",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    deprecated = True
     )
 def show_person(
     name : Optional[str]= Query(
@@ -150,15 +175,18 @@ def show_person(
         title="Age",
         description="This is the person age, It's required",
         example=23
-        )
+        ),
+    tags=["Persons"],
+    
     ):
     return {name:age}
 
-
+persons = {1, 2, 3, 4, 5}
 # Validation Path parameters
 @app.get(
     "/person/detail/{person_id}",
-    status_code=status.HTTP_200_OK)
+    status_code=status.HTTP_200_OK,
+    tags=["Persons"])
 def show_person(
     person_id:int = Path(
         ..., 
@@ -168,13 +196,19 @@ def show_person(
         example=123
     )
     ):
+    if person_id not in persons:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="!This person dosen't exists!"
+        )
     return {person_id:"It exists"}
 
 
 # Validaciones. Request Body
 @app.put(
     "/person/{person_id}",
-    status_code=status.HTTP_202_ACCEPTED
+    status_code=status.HTTP_202_ACCEPTED,
+    tags=["Persons"]
     )
 def update_person(
     person_id: int = Path(
@@ -196,7 +230,7 @@ def update_person(
     path="/login",
     response_model=Login,
     status_code=status.HTTP_200_OK,
-
+    tags=["Persons"]
 )
 def loggin(username:str = Form(...), password:str = Form(...) ):
     return Login(username=username)
