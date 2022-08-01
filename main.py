@@ -158,7 +158,8 @@ def create_user(person:Person = Body(...)):
 # Validaciones: Query Parametros
 @app.get(
     "/person/detail",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    deprecated = True
     )
 def show_person(
     name : Optional[str]= Query(
@@ -175,7 +176,8 @@ def show_person(
         description="This is the person age, It's required",
         example=23
         ),
-    tags=["Persons"]
+    tags=["Persons"],
+    
     ):
     return {name:age}
 
